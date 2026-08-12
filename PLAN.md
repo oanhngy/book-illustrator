@@ -67,32 +67,30 @@ offers a control that clears `RunningStep`. That is the answer to "nothing stuck
 
 **Goal: be able to build the whole app without spending quota.**
 
-- Record real fixtures first — one structured-JSON response, one image response — into
+- [x] 1. Record real fixtures first — one structured-JSON response, one image response — into
   `fixtures/`. Read the actual response shape from them; do not assume it.
-- `IGeminiClient` with `GenerateJsonAsync(prompt, previousInteractionId, schema)` and
+- [ ] 2. `IGeminiClient` with `GenerateJsonAsync(prompt, previousInteractionId, schema)` and
   `GenerateImageAsync(prompt, previousInteractionId)`.
-- `FakeGeminiClient` reads fixtures and delays 15s. Registered when `USE_FAKE_GEMINI=true`.
-- Real `GeminiClient` over `HttpClient` — can land at the end of the block.
+- [ ] 3. `FakeGeminiClient` reads fixtures and delays 15s. Registered when `USE_FAKE_GEMINI=true`.
+- [ ] 4. Real `GeminiClient` over `HttpClient` — can land at the end of the block.
 
-**Done when:** an endpoint calling `IGeminiClient` returns a parsed result after ~15s with the
-fake registered.
+**Done when:** an endpoint calling `IGeminiClient` returns a parsed result after ~15s with the fake registered.
 
-**Decision to record:** chaining vs file upload — what is persisted to survive a restart, and
-what happens when that handle expires.
+**Decision to record:** chaining vs file upload — what is persisted to survive a restart, and what happens when that handle expires.
 
 ---
 
 ## Block C — Backend
 
-- Identity: `POST /api/auth` takes email + name, upserts, returns something the client can hold.
+- [ ] 1. Identity: `POST /api/auth` takes email + name, upserts, returns something the client can hold.
   No passwords — the brief allows this.
-- `POST /api/projects`, `GET /api/projects`, `GET /api/projects/{id}`.
-- `POST /api/projects/{id}/steps/{step}/run` — claim, then background task.
-- `PipelineService` with five step methods.
-- Caps enforced here: truncate to 2 characters, 1 chapter.
-- Portraits generated one at a time, each persisted immediately so the UI can show them
+- [ ] 2. `POST /api/projects`, `GET /api/projects`, `GET /api/projects/{id}`.
+- [ ] 3. `POST /api/projects/{id}/steps/{step}/run` — claim, then background task.
+- [ ] 4. `PipelineService` with five step methods.
+- [ ] 5. Caps enforced here: truncate to 2 characters, 1 chapter.
+- [ ] 6. Portraits generated one at a time, each persisted immediately so the UI can show them
   arriving individually.
-- Images written under `data/images/{projectId}/`, served through our own endpoint.
+- [ ] 7. Images written under `data/images/{projectId}/`, served through our own endpoint.
 
 **Done when:** all five steps complete against the fake; a mid-step refresh shows the running
 step; two concurrent run requests produce one Gemini call.
@@ -105,10 +103,10 @@ step; two concurrent run requests produce one Gemini call.
 
 Four tests against a real SQLite file in a temp directory. Mock Gemini, never the database.
 
-1. Step 3 is refused when only step 1 is complete
-2. Two concurrent run requests → Gemini called exactly once
-3. A failing step clears `RunningStep`, records the error, leaves `CompletedSteps` unchanged
-4. A stale `RunningSince` surfaces `canForceRetry`
+- [ ] 1. Step 3 is refused when only step 1 is complete
+- [ ] 2. Two concurrent run requests → Gemini called exactly once
+- [ ] 3. A failing step clears `RunningStep`, records the error, leaves `CompletedSteps` unchanged
+- [ ] 4. A stale `RunningSince` surfaces `canForceRetry`
 
 Test 2 is the most valuable test in the submission.
 
@@ -119,11 +117,11 @@ Test 2 is the most valuable test in the submission.
 Order: identity → project list → create project → project detail → stepper → polling →
 loading/error/empty states → force-retry → polish.
 
-- Poll `GET /api/projects/{id}` every 2s while `RunningStep != null`.
-- Loading must name the step in progress, not a generic spinner.
-- Errors must be per-step and retryable from the UI.
-- Empty states for no projects and for a project with no results yet.
-- Layout must not jump as results arrive.
+- [ ] 1. Poll `GET /api/projects/{id}` every 2s while `RunningStep != null`.
+- [ ] 2. Loading must name the step in progress, not a generic spinner.
+- [ ] 3. Errors must be per-step and retryable from the UI.
+- [ ] 4. Empty states for no projects and for a project with no results yet.
+- [ ] 5. Layout must not jump as results arrive.
 
 `app-demo.html` in the brief is a visual reference to match or beat, not a layout to copy.
 
@@ -134,24 +132,28 @@ loading/error/empty states → force-retry → polish.
 ## Block F — Frontend tests
 
 Two component tests only:
-1. Stepper renders done / current / pending correctly
-2. Project detail renders the error state and a retry control
+- [ ] 1. Stepper renders done / current / pending correctly
+- [ ] 2. Project detail renders the error state and a retry control
 
 ---
 
 ## Block G — Real run
 
-Switch to the real client. Run all five steps on a short chapter. While it runs, verify by
-hand: refresh mid-step, second tab, double-click, kill and restart the server, force a failure.
-Paste real test output into `TESTING.md`. Fix only what is broken enough to matter.
+- [ ] 1. Switch to the real client.
+- [ ] 2. Run all five steps on a short chapter.
+- [ ] 3. Verify by hand: refresh mid-step, second tab, double-click, kill and restart the server,
+  force a failure.
+- [ ] 4. Paste real test output into `TESTING.md`.
+- [ ] 5. Fix only what is broken enough to matter.
 
 ---
 
 ## Block H — Packaging
 
-`start.sh` and `test.sh` verified from a clean clone. `README.md`, `TESTING.md`, and a final
-pass on `DECISIONS.md` — at least three genuine AI overrides, plus the "one more day" section.
-Commit `CLAUDE.md`, this plan, and any prompts or spec files used.
+- [ ] 1. `start.sh` and `test.sh` verified from a clean clone.
+- [ ] 2. `README.md`, `TESTING.md`, and a final pass on `DECISIONS.md` — at least three genuine
+  AI overrides, plus the "one more day" section.
+- [ ] 3. Commit `CLAUDE.md`, this plan, and any prompts or spec files used.
 
 ---
 
