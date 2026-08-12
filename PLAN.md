@@ -69,7 +69,7 @@ offers a control that clears `RunningStep`. That is the answer to "nothing stuck
 
 - [x] 1. Record real fixtures first — one structured-JSON response, one image response — into
   `fixtures/`. Read the actual response shape from them; do not assume it.
-- [ ] 2. `IGeminiClient` with `GenerateJsonAsync(prompt, previousInteractionId, schema)` and
+- [x] 2. `IGeminiClient` with `GenerateJsonAsync(prompt, previousInteractionId, schema)` and
   `GenerateImageAsync(prompt, previousInteractionId)`.
 - [ ] 3. `FakeGeminiClient` reads fixtures and delays 15s. Registered when `USE_FAKE_GEMINI=true`.
 - [ ] 4. Real `GeminiClient` over `HttpClient` — can land at the end of the block.
