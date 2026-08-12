@@ -1,85 +1,53 @@
-<!--
-  HOW TO USE THIS FILE
-  ====================
-  These are headings and prompts only. Write each entry YOURSELF, in your own voice,
-  at the moment the decision happens — not at the end.
-
-  Each entry: a heading, then 3-6 sentences covering
-    - who proposed it (you, or the AI)
-    - who pushed back and on what grounds
-    - where you landed
-    - what it cost you — the con you accepted, stated plainly
-
-  Delete every HTML comment before you commit. Delete any heading you did not actually
-  face, and add ones you did. 4-6 real entries beats 8 thin ones.
-
-  At least 3 entries must be places where AI output was wrong, unsafe, or overcomplicated
-  and you did something else. Those are marked below.
--->
 
 # Decisions
 
 ## Stack and storage
+Who proposed: brief suggests JSON file is best fit. I considered both
+Decision: SQLite + EFCore
+Reasons:
+- Database can makes sure nothing slips in between the check and the write, no coding need
+- SQLite writes are all-or-nothing. If the app dies mid-write, data stays at the previous state --> No loss. JSON only safe if I get every single write path right
+- 24 hrs, I stayed with tools I already know so I could spend time on parts that actually matter most 
+Trade-offs: 
+- File .db need tools to open. With JSON, "cat" show the whole project state: easier to debug or review
+- When cloning the project, migration could be error, lead to can't open the project
+==> JSON file seems better fit for the project, I know I chose the heavier one than brief suggests. But I traded that simplicity for not having to write concurrency control under time pressure
 
-<!--
-  Required by the brief (§06). Cover: what you picked, what else was genuinely on the table,
-  why this one, and the limits you accepted.
-  If SQLite: what does it not give you? (single writer; one instance only)
-  If JSON files: how did you make concurrent writes safe, and what is still unsafe?
-  Either way: the brief explicitly blesses JSON files, so say why you went the way you went.
--->
+## Right-sizing the structure
+Who proposed: I proposed 3-layered architecture with repository, Claude pushed back on 3 ground: 
+- DbSet is already a repository
+- Conditional UPDATE can only do by SQL, wrapping it make the abstraction meaningless
+- Do not mock repository on something need to be test 
+Decision: No Repository, no separate domain project. Endpoint in Program.cs, logic in PipelineService, service talks to DbContext directly
+Reasons:
+- Keep PipelineService: For not pushing logic into endpoints so I can test rules like "step 3 must be refuses when only step 1 is done" by calling the service in 3 lines. If that logic live in endpoint, the same test will need a running web server
+- 2 entites + 5 operations: 3-layered is over-engineering
+- Less code between app and database means fewer places for bug while I'm working fast
+Trade-offs: 
+- "UPDATE" is written in plain string --> compiler can't check
+- Rules like step order and 2-character max live as "if" checks inside service, not in "Project" class itself --> nothing stops a new endpoint from changing a project directly and skipping them
+- Tests run by real SQLite file --> slower, need to clean up after each testing
+- This structure works good with 5 steps, if project grow a few times bigger, splitting will be needed
 
 ## Modelling pipeline progress
 
-<!--
-  Required by the brief (§06). How does a project know where it is?
-  Why more than one field? What breaks if you collapse them into a single status enum?
-  What does a refresh mid-step have to read correctly?
-  What is the cost of the shape you chose?
--->
 
-## Stopping duplicate execution on refresh
+## Preventing duplicate execution
 
-<!--
-  Required by the brief (§06). What actually guarantees a second tab or a double-click
-  does not fire the same Gemini call twice?
-  Name the mechanism. Say what it relies on. Say where it stops working.
--->
 
 ## Recovering a stranded step
 
-<!--
-  What happens when the server dies mid-call? How does the user get unstuck without
-  someone editing the database by hand? What threshold did you pick and why that number?
--->
 
 ## Passing the book to Gemini once
 
-<!--
-  Chaining, file upload, or something else? What do you persist to make it work across
-  a restart? What happens when that handle expires or is lost?
--->
 
 ## Model choice
 
-<!--
-  Which text model, which image model, and why those. The brief asks for this specifically (§5.3).
-  Anything you learned about the image model's limits that shaped the choice?
--->
+
 
 ---
 
 # Where I overrode the AI
-
-<!--
-  The brief calls this "the single strongest signal in the whole submission" (§2.3).
-  At least 3. Each one: what the AI produced, what was wrong with it, what you did instead.
-  Be specific enough that it is obviously a real event — name the file, the endpoint,
-  the pattern. Vague entries read as invented.
-
-  The push-back goes both ways, so if the AI caught a mistake of yours, that belongs
-  somewhere in this file too — it scores.
--->
 
 ## 1.
 
