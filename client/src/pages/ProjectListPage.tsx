@@ -4,9 +4,10 @@ import { ApiError, listProjects, type ProjectSummary } from '../api'
 interface ProjectListPageProps {
   userEmail: string
   onCreateNew: () => void
+  onSelectProject: (projectId: string) => void
 }
 
-export function ProjectListPage({ userEmail, onCreateNew }: ProjectListPageProps) {
+export function ProjectListPage({ userEmail, onCreateNew, onSelectProject }: ProjectListPageProps) {
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -56,12 +57,18 @@ export function ProjectListPage({ userEmail, onCreateNew }: ProjectListPageProps
       {!error && projects !== null && projects.length > 0 && (
         <ul className="divide-y divide-slate-200 rounded border border-slate-200">
           {projects.map((project) => (
-            <li key={project.id} className="p-4">
-              <div className="font-medium text-slate-900">{project.title}</div>
-              <div className="text-sm text-slate-500">
-                {project.completedSteps}/5 bước hoàn thành ·{' '}
-                {new Date(project.createdAt).toLocaleDateString('vi-VN')}
-              </div>
+            <li key={project.id}>
+              <button
+                type="button"
+                onClick={() => onSelectProject(project.id)}
+                className="w-full p-4 text-left hover:bg-slate-50"
+              >
+                <div className="font-medium text-slate-900">{project.title}</div>
+                <div className="text-sm text-slate-500">
+                  {project.completedSteps}/5 bước hoàn thành ·{' '}
+                  {new Date(project.createdAt).toLocaleDateString('vi-VN')}
+                </div>
+              </button>
             </li>
           ))}
         </ul>

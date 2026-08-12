@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { IdentityPage } from './pages/IdentityPage'
 import { ProjectListPage } from './pages/ProjectListPage'
 import { CreateProjectPage } from './pages/CreateProjectPage'
+import { ProjectDetailPage } from './pages/ProjectDetailPage'
 import type { AuthResponse } from './api'
 
 const IDENTITY_KEY = 'book-illustrator:identity'
@@ -20,7 +21,7 @@ function saveIdentity(identity: AuthResponse) {
   localStorage.setItem(IDENTITY_KEY, JSON.stringify(identity))
 }
 
-type View = { name: 'list' } | { name: 'create' }
+type View = { name: 'list' } | { name: 'create' } | { name: 'detail'; projectId: string }
 
 function App() {
   const [identity, setIdentity] = useState<AuthResponse | null>(loadIdentity)
@@ -39,8 +40,18 @@ function App() {
     return (
       <CreateProjectPage
         userEmail={identity.email}
-        onCreated={() => setView({ name: 'list' })}
+        onCreated={(project) => setView({ name: 'detail', projectId: project.id })}
         onCancel={() => setView({ name: 'list' })}
+      />
+    )
+  }
+
+  if (view.name === 'detail') {
+    return (
+      <ProjectDetailPage
+        userEmail={identity.email}
+        projectId={view.projectId}
+        onBack={() => setView({ name: 'list' })}
       />
     )
   }
@@ -49,6 +60,7 @@ function App() {
     <ProjectListPage
       userEmail={identity.email}
       onCreateNew={() => setView({ name: 'create' })}
+      onSelectProject={(projectId) => setView({ name: 'detail', projectId })}
     />
   )
 }
