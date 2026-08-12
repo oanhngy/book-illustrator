@@ -3,9 +3,10 @@ import { ApiError, listProjects, type ProjectSummary } from '../api'
 
 interface ProjectListPageProps {
   userEmail: string
+  onCreateNew: () => void
 }
 
-export function ProjectListPage({ userEmail }: ProjectListPageProps) {
+export function ProjectListPage({ userEmail, onCreateNew }: ProjectListPageProps) {
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -29,7 +30,16 @@ export function ProjectListPage({ userEmail }: ProjectListPageProps) {
 
   return (
     <div className="mx-auto max-w-2xl p-6">
-      <h1 className="mb-4 text-lg font-semibold text-slate-900">Dự án của bạn</h1>
+      <div className="mb-4 flex items-center justify-between">
+        <h1 className="text-lg font-semibold text-slate-900">Dự án của bạn</h1>
+        <button
+          type="button"
+          onClick={onCreateNew}
+          className="rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white"
+        >
+          Tạo dự án mới
+        </button>
+      </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
@@ -39,7 +49,7 @@ export function ProjectListPage({ userEmail }: ProjectListPageProps) {
 
       {!error && projects !== null && projects.length === 0 && (
         <p className="rounded border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
-          Chưa có dự án nào.
+          Chưa có dự án nào. Bấm "Tạo dự án mới" để bắt đầu.
         </p>
       )}
 
