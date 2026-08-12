@@ -30,26 +30,49 @@ Trade-offs:
 - This structure works good with 5 steps, if project grow a few times bigger, splitting will be needed
 
 ## Modelling pipeline progress
-
+Who propose:
+Decision:
+Reasons:
+Trade-offs:
 
 ## Preventing duplicate execution
-
+Who propose:
+Decision:
+Reasons:
+Trade-offs:
 
 ## Recovering a stranded step
-
+Who propose:
+Decision:
+Reasons:
+Trade-offs:
 
 ## Passing the book to Gemini once
-
+Who propose:
+Decision:
+Reasons:
+Trade-offs:
 
 ## Model choice
-
+Who propose:
+Decision:
+Reasons:
+Trade-offs:
 
 
 ---
 
 # Where I overrode the AI
 
-## 1.
+## 1. Unflagged extra image generations
+Claude Code ran an image call while building and reported as passing. I re-ran it myself and found the model had generated 4 images for 2 characters --> double the paid and fixtures have a shape I dont intented to build
+**What I did**:
+- tighten the prompt to ask for 1 image
+- re-recorded the fixtures
+- (defensive coding) make GenerateImageAsync take the last image if output is several, last rather than first because the model labels the early ones as drafts and the later one as final
+**Trade-offs**:
+- I verified the tight prompt once, cant guarantee the model will always return 1 single output, this only reduces the problem, not remove it
+- A prompt constraint is a request, not a limit. A real fix would cap spend per step, which I didnt build
 
 ## 2.
 
