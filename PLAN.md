@@ -72,11 +72,11 @@ offers a control that clears `RunningStep`. That is the answer to "nothing stuck
 - [x] 2. `IGeminiClient` with `GenerateJsonAsync(prompt, previousInteractionId, schema)` and
   `GenerateImageAsync(prompt, previousInteractionId)`.
 - [x] 3. `FakeGeminiClient` reads fixtures and delays 15s. Registered when `USE_FAKE_GEMINI=true`.
-- [ ] 4. Real `GeminiClient` over `HttpClient` — can land at the end of the block.
+- [x] 4. Real `GeminiClient` over `HttpClient` — can land at the end of the block.
 
 **Done when:** an endpoint calling `IGeminiClient` returns a parsed result after ~15s with the fake registered.
 
-**Decision to record:** chaining vs file upload — what is persisted to survive a restart, and what happens when that handle expires.
+**Decision to record:** chaining vs file upload - choose what
 
 ---
 
@@ -92,10 +92,9 @@ offers a control that clears `RunningStep`. That is the answer to "nothing stuck
   arriving individually.
 - [ ] 7. Images written under `data/images/{projectId}/`, served through our own endpoint.
 
-**Done when:** all five steps complete against the fake; a mid-step refresh shows the running
-step; two concurrent run requests produce one Gemini call.
+**Done when:** all five steps complete against the fake; a mid-step refresh shows the running step; two concurrent run requests produce one Gemini call.
 
-**Decisions to record:** the two-field progress model; the conditional-UPDATE guard.
+**Decisions to record:** what is persisted to survive a restart, and what happens when that handle expires; the two-field progress model; the conditional-UPDATE guard.
 
 ---
 
