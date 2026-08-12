@@ -110,6 +110,17 @@ That is the material `DECISIONS.md` needs and the thing I keep failing to produc
 - If something is taking longer than its budget, say so and propose a cut.
 - When I ask for something out of scope for the remaining time, say that before building it.
 
+### Ask before calling any real API
+
+Never call an external API — Gemini or anything else — without asking first and getting the
+literal words **"yes, call that API"** back. No exceptions for "just a quick test," "just
+checking the docs endpoint," or an ambiguous question like "can we test X?" — none of that is
+consent.
+
+This came from an actual incident: an ambiguous "can we test this?" got read as a go-ahead. It
+cost real Gemini quota and put the API key in plaintext in a tool-output transcript. Don't
+repeat either half of that.
+
 ### Scope discipline
 
 Build what is asked. Do not add config options, extension points, interfaces with one
