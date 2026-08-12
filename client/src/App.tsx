@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { IdentityPage } from './pages/IdentityPage'
+import { ProjectListPage } from './pages/ProjectListPage'
 import type { AuthResponse } from './api'
 
 const IDENTITY_KEY = 'book-illustrator:identity'
@@ -30,11 +31,7 @@ function App() {
     return <IdentityPage onAuthenticated={handleAuthenticated} />
   }
 
-  return (
-    <div className="p-6 text-sm text-slate-600">
-      Đã đăng nhập với tên {identity.name} ({identity.email})
-    </div>
-  )
+  return <ProjectListPage userEmail={identity.email} />
 }
 
 export default App
