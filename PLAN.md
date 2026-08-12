@@ -82,7 +82,7 @@ offers a control that clears `RunningStep`. That is the answer to "nothing stuck
 
 ## Block C — Backend
 
-- [ ] 1. Identity: `POST /api/auth` takes email + name, upserts, returns something the client can hold.
+- [x] 1. Identity: `POST /api/auth` takes email + name, upserts, returns something the client can hold.
   No passwords — the brief allows this.
 - [ ] 2. `POST /api/projects`, `GET /api/projects`, `GET /api/projects/{id}`.
 - [ ] 3. `POST /api/projects/{id}/steps/{step}/run` — claim, then background task.
