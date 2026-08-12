@@ -1,0 +1,14 @@
+.env
+*.env
+!.env.example
+*.db
+*.db-shm
+*.db-wal
+data/
+bin/
+obj/
+node_modules/
+dist/
+.vs/
+.idea/
+.DS_Store
