@@ -71,7 +71,7 @@ offers a control that clears `RunningStep`. That is the answer to "nothing stuck
   `fixtures/`. Read the actual response shape from them; do not assume it.
 - [x] 2. `IGeminiClient` with `GenerateJsonAsync(prompt, previousInteractionId, schema)` and
   `GenerateImageAsync(prompt, previousInteractionId)`.
-- [ ] 3. `FakeGeminiClient` reads fixtures and delays 15s. Registered when `USE_FAKE_GEMINI=true`.
+- [x] 3. `FakeGeminiClient` reads fixtures and delays 15s. Registered when `USE_FAKE_GEMINI=true`.
 - [ ] 4. Real `GeminiClient` over `HttpClient` — can land at the end of the block.
 
 **Done when:** an endpoint calling `IGeminiClient` returns a parsed result after ~15s with the fake registered.
