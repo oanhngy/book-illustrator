@@ -169,11 +169,8 @@ tests, or commits spread across the working session.
 
 Recorded as choices, not apologies:
 
-- **TDD** — never used it; a deadline is the wrong place to learn a new process. Tests were
-  written after, aimed at the riskiest logic.
-- **Frontend component tests (Stepper, error-state retry)** — cut outright this round. Block
-  D's backend tests protect the higher-risk logic (concurrency, resume); 18h didn't stretch to
-  both.
+- **TDD** — never used it; a deadline is the wrong place to learn a new process. Tests were written after, aimed at the riskiest logic.
+- **Frontend component tests (Stepper, error-state retry)** — cut outright this round. Block D's backend tests protect the higher-risk logic (concurrency, resume);  18h didn't stretch to both.
 - **Integration test across all five steps** — the fake client makes it cheap; ran out of time.
 - **Multi-instance safety** — the conditional UPDATE holds for one process, not several.
 - **Expired chaining handle** — an old project whose Gemini context has expired cannot resume.
