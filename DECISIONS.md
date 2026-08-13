@@ -23,7 +23,7 @@
 - 2 entites + 5 operations: 3-layered is over-engineering
 - Less code between app and database means fewer places for bug while I'm working fast
 **Trade-offs**: 
-- "UPDATE" is written in plain string --> compiler can't check
+- First I sketched this as a raw SQL string, which compiler cant check. Then switched to ExecuteUpdateAsync so column names go through a lambda, same single atomic UPDATE underneath
 - Rules like step order and 2-character max live as "if" checks inside service, not in "Project" class itself --> nothing stops a new endpoint from changing a project directly and skipping them
 - Tests run by real SQLite file --> slower, need to clean up after each testing
 - This structure works good with 5 steps, if project grow a few times bigger, splitting will be needed
@@ -48,10 +48,16 @@
 - Step and Index=plain ints so nothing stops a nonsense value
 
 ## Preventing duplicate execution
-**Who propose**:
-**Decision**:
+**Who propose**: Me, I wrote it in PLAN.md before starting to code
+**Decision**: A single conditional UPDATE claims a step, written with EF Core's ExecuteUpdateAsync rather than a raw SQL string, claimed==0 -->refuse
 **Reasons**:
+- 1 statement does 3 job: order (CompletedSteps==step-1), no duplicate(RunningStep==null), reclaiming a stranded step (RunningSince < staleThreshold)
+- Check and write at the same statement, no window between them. Anything that read first and then write like plain C#, optimistic concurrency with a row version - reopen that window or move the problem into exception handling
+- No new state need 
 **Trade-offs**:
+- Protection ends at the process boundary --> 2 instances against the same SQLite file would both be able to claim
+- claimed==0 collapses several different refusals into 1 outcome --> client cant tell which error they facing
+- The stale-threshold clause deliberately weakens the guard: inside that window the step is protected, past it a genuinely-still-running step can be claimed again, see below
 
 ## Recovering a stranded step
 **Who propose**: Claude offered 2 shapes - a separate force-entry endpoint or folding it into '/run'
