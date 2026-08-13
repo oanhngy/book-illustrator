@@ -7,11 +7,21 @@ if [ ! -f .env ]; then
 fi
 export $(grep -v '^#' .env | grep -v '^$' | xargs)
 
-(cd server && dotnet run --urls http://localhost:5050) &
+# free the ports in case a previous run left something behind
+lsof -ti:5050 | xargs kill -9 2>/dev/null || true
+lsof -ti:5173 | xargs kill -9 2>/dev/null || true
+
+(cd server && dotnet run --no-launch-profile --urls http://localhost:5050) &
 SERVER_PID=$!
 (cd client && npm run dev) &
 CLIENT_PID=$!
-trap "kill $SERVER_PID $CLIENT_PID 2>/dev/null" EXIT
+
+cleanup() {
+  kill $SERVER_PID $CLIENT_PID 2>/dev/null || true
+  lsof -ti:5050 | xargs kill -9 2>/dev/null || true
+  lsof -ti:5173 | xargs kill -9 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
 
 echo ""
 echo "  API      http://localhost:5050"
