@@ -8,7 +8,7 @@ var useFakeGemini = bool.TryParse(Environment.GetEnvironmentVariable("USE_FAKE_G
 
 builder.Services.AddHttpClient<GeminiClient>(client =>
 {
-    client.Timeout = TimeSpan.FromSeconds(60);
+    client.Timeout = TimeSpan.FromSeconds(120);
 });
 
 var storagePath = Environment.GetEnvironmentVariable("STORAGE_PATH") ?? "./data";

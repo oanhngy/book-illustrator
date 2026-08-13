@@ -133,12 +133,11 @@ loading/error/empty states → force-retry.
 
 ## Block G — Real run
 
-- [ ] 1. Switch to the real client.
-- [ ] 2. Run Style → Characters → Portraits on a short chapter first; only extend to Chapters → Illustrations if time remains. Code for all 5 steps already exists — this is about how deep the real-API verification pass goes, not what gets built.
-- [ ] 3. Verify by hand: refresh mid-step, second tab, double-click, kill and restart the server,
-  force a failure.
-- [ ] 4. Paste real test output into `TESTING.md`.
-- [ ] 5. Fix only what is broken enough to matter.
+- [x] 1. Switch to the real client.
+- [x] 2. Run Style → Characters → Portraits on a short chapter first; only extend to Chapters → Illustrations if time remains. Code for all 5 steps already exists — this is about how deep the real-API verification pass goes, not what gets built.
+- [x] 3. Verify by hand: refresh mid-step, second tab, double-click, kill and restart the server, force a failure.
+- [x] 4. Paste real test output into `TESTING.md`.
+- [x] 5. Fix only what is broken enough to matter. — found and fixed a real bug: Chapters chaining off the last Portrait's (image-model) interaction id got a genuine 400 from Gemini; JSON-generating steps now always resume from the last text interaction, image steps chain locally without overwriting it. Confirmed fixed — full 5-step real run succeeded after the fix, on more than one project.
 
 ---
 

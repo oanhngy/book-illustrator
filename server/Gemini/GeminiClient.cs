@@ -66,7 +66,13 @@ public sealed class GeminiClient : IGeminiClient
     private async Task<InteractionResponse> SendAsync(JsonObject body, CancellationToken ct)
     {
         using var httpResponse=await _http.PostAsJsonAsync(BaseUrl, body, JsonOpts, ct);
-        httpResponse.EnsureSuccessStatusCode();
+
+        if(!httpResponse.IsSuccessStatusCode)
+        {
+            var errorBody=await httpResponse.Content.ReadAsStringAsync(ct);
+            throw new InvalidOperationException($"Gemini request failed with {(int)httpResponse.StatusCode} {httpResponse.StatusCode}: {errorBody}");
+        }
+
         var response=await httpResponse.Content.ReadFromJsonAsync<InteractionResponse>(JsonOpts,ct) ?? throw new InvalidOperationException("Gemini response body could not be parsed");
 
         if(response.Status!="completed")

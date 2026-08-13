@@ -105,15 +105,20 @@ public class PipelineService
 
         var characters = JsonSerializer.Deserialize<CharactersDto>(project.CharactersJson ?? "{}", JsonOpts)?.Characters ?? [];
 
+        // Chain portraits off each other locally (verified: image->image keeps the same
+        // character), but never leave project.LastInteractionId pointing at an image call —
+        // a later JSON-schema call (Chapters) chaining off an image-only interaction gets a
+        // real 400 from Gemini. Text steps must always resume from the last text interaction.
+        var chainId = project.LastInteractionId;
         for (var index = 0; index < characters.Count; index++)
         {
             var character = characters[index];
             var prompt = $"Portrait of {character.Name}: {character.ImagePrompt}. Match the established illustration style.";
 
-            var result = await _gemini.GenerateImageAsync(prompt, project.LastInteractionId);
+            var result = await _gemini.GenerateImageAsync(prompt, chainId);
 
             await SaveGeneratedImageAsync(project.Id, step: 3, index, result);
-            project.LastInteractionId = result.InteractionId;
+            chainId = result.InteractionId;
             await _db.SaveChangesAsync();
         }
     }
@@ -139,16 +144,19 @@ public class PipelineService
 
         var chapters = JsonSerializer.Deserialize<ChaptersDto>(project.ChaptersJson ?? "{}", JsonOpts)?.Chapters ?? [];
 
+        // Same reasoning as RunPortraitsAsync: chain images off each other locally, never
+        // persist an image interaction as project.LastInteractionId.
+        var chainId = project.LastInteractionId;
         for (var index = 0; index < chapters.Count; index++)
         {
             var chapter = chapters[index];
             var prompt = $"Illustration for chapter '{chapter.Title}': {chapter.ImagePrompt}. " +
                 "Match the established illustration style and character designs.";
 
-            var result = await _gemini.GenerateImageAsync(prompt, project.LastInteractionId);
+            var result = await _gemini.GenerateImageAsync(prompt, chainId);
 
             await SaveGeneratedImageAsync(project.Id, step: 5, index, result);
-            project.LastInteractionId = result.InteractionId;
+            chainId = result.InteractionId;
             await _db.SaveChangesAsync();
         }
     }
