@@ -114,7 +114,7 @@ Test 2 is the most valuable test in the submission.
 ## Block E — Frontend
 
 Order: identity → project list → create project → project detail → stepper → polling →
-loading/error/empty states → force-retry → polish.
+loading/error/empty states → force-retry.
 
 - [ ] 1. Poll `GET /api/projects/{id}` every 2s while `RunningStep != null`.
 - [ ] 2. Loading must name the step in progress, not a generic spinner.
@@ -128,18 +128,12 @@ loading/error/empty states → force-retry → polish.
 
 ---
 
-## Block F — Frontend tests
-
-Two component tests only:
-- [ ] 1. Stepper renders done / current / pending correctly
-- [ ] 2. Project detail renders the error state and a retry control
-
----
-
 ## Block G — Real run
 
 - [ ] 1. Switch to the real client.
-- [ ] 2. Run all five steps on a short chapter.
+- [ ] 2. Run Style → Characters → Portraits on a short chapter first; only extend to
+  Chapters → Illustrations if time remains. Code for all 5 steps already exists — this
+  is about how deep the real-API verification pass goes, not what gets built.
 - [ ] 3. Verify by hand: refresh mid-step, second tab, double-click, kill and restart the server,
   force a failure.
 - [ ] 4. Paste real test output into `TESTING.md`.
@@ -158,13 +152,16 @@ Two component tests only:
 
 ## Cut list, in order of least pain
 
-1. Responsive/mobile — desktop only, just do not let it break
-2. One frontend test instead of two
-3. Everything in the brief's bonus section — already out
-4. Auto-generating the art style from the text; accept a typed style instead
+1. Everything in the brief's bonus section (§08) — already out, never started
+2. Responsive/mobile and any UI polish pass — desktop-functional only, ship each state
+   (loading/error/empty) plain once it is handled correctly, no visual refinement pass
+3. Block F frontend tests — cut outright, see "one more day"
+4. Real-run depth on steps 4–5 (Chapters, Illustrations) — if Block G runs short, Style →
+   Characters → Portraits verified flawless (resume, no duplicates, clean error state) beats
+   all 5 steps demoed shakily. Only the real-API verification pass shrinks; the code stays.
 
-**Never cut:** resume, duplicate protection, stranded-step recovery, `DECISIONS.md`, or commits
-spread across the working session.
+**Never cut:** resume, duplicate protection, stranded-step recovery, `DECISIONS.md`, Block D's
+tests, or commits spread across the working session.
 
 ---
 
@@ -174,6 +171,9 @@ Recorded as choices, not apologies:
 
 - **TDD** — never used it; a deadline is the wrong place to learn a new process. Tests were
   written after, aimed at the riskiest logic.
+- **Frontend component tests (Stepper, error-state retry)** — cut outright this round. Block
+  D's backend tests protect the higher-risk logic (concurrency, resume); 18h didn't stretch to
+  both.
 - **Integration test across all five steps** — the fake client makes it cheap; ran out of time.
 - **Multi-instance safety** — the conditional UPDATE holds for one process, not several.
 - **Expired chaining handle** — an old project whose Gemini context has expired cannot resume.
