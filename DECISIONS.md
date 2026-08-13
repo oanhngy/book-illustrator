@@ -61,7 +61,7 @@
 - Keep the claim atomic, a separate endpoint clearing RunningStep would reopen the gap the conditional UPDATE exists to close
 - Nothing manual needed to unstick a project
 **Trade-offs**:
-- The 5-minute threshold is a guess. If a Gemini call run longer, a second click claims a step that's running and I pay twice
+- The 5-minute threshold is a guess. It is not there to cover a slow Gemini call — HttpClient times out at 60s and the failure is caught and cleaned up long before 5 minutes. It covers the narrower case where the process is alive but stuck somewhere else: a blocked SaveChangesAsync, or a bug that never returns. If that ever happens and the step is still genuinely running when the flag ages out, a second click claims it and I pay for two Gemini calls
 - No way to tell a dead process from a slow one
 - User gets no gisnal it happened, the step just becomes runnable again
 
