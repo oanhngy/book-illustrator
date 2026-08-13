@@ -102,10 +102,10 @@ offers a control that clears `RunningStep`. That is the answer to "nothing stuck
 
 Four tests against a real SQLite file in a temp directory. Mock Gemini, never the database.
 
-- [ ] 1. Step 3 is refused when only step 1 is complete
-- [ ] 2. Two concurrent run requests → Gemini called exactly once
-- [ ] 3. A failing step clears `RunningStep`, records the error, leaves `CompletedSteps` unchanged
-- [ ] 4. A stale `RunningSince` surfaces `canForceRetry`
+- [x] 1. Step 3 is refused when only step 1 is complete
+- [x] 2. Two concurrent run requests → Gemini called exactly once
+- [x] 3. A failing step clears `RunningStep`, records the error, leaves `CompletedSteps` unchanged
+- [x] 4. A stale `RunningSince` surfaces `canForceRetry`
 
 Test 2 is the most valuable test in the submission.
 

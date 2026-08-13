@@ -202,3 +202,6 @@ record ProjectDetail(
     int CompletedSteps, int? RunningStep, DateTime? RunningSince,
     string? LastError, int? FailedStep, bool CanForceRetry,
     string? StyleJson, string? CharactersJson, string? ChaptersJson, List<GeneratedImageRef> Images);
+
+// Lets WebApplicationFactory<Program> find the entry point for integration tests.
+public partial class Program { }
