@@ -114,7 +114,12 @@ app.MapGet("/api/projects/{id:guid}", async (Guid id, HttpContext http, AppDbCon
     if (project is null || project.UserEmail != email)
         return Results.NotFound();
 
-    return Results.Ok(ToDetail(project));
+    var images=await db.GeneratedImages
+        .Where(g=>g.ProjectId==id)
+        .OrderBy(g=>g.Step).ThenBy(g=>g.Index)
+        .ToListAsync();
+
+    return Results.Ok(ToDetail(project, images));
 });
 
 app.MapPost("/api/projects/{id:guid}/steps/{step:int}/run", async (
@@ -157,12 +162,23 @@ app.MapPost("/api/projects/{id:guid}/steps/{step:int}/run", async (
     return Results.Accepted();
 });
 
+app.MapGet("/api/images/{id:guid}", async (Guid id, AppDbContext db) =>
+{
+   var image=await db.GeneratedImages.FirstOrDefaultAsync(g=>g.Id==id);
+   if(image is null) return Results.NotFound();
+
+   var absolutePath=Path.GetFullPath(Path.Combine(storagePath, image.ImagePath));
+   if(!File.Exists(absolutePath)) return Results.NotFound();
+
+   return Results.File(absolutePath, image.MimeType);
+});
+
 app.Run();
 
 static ProjectSummary ToSummary(Project p) =>
     new(p.Id, p.Title, p.CreatedAt, p.CompletedSteps, p.RunningStep);
 
-static ProjectDetail ToDetail(Project p)
+static ProjectDetail ToDetail(Project p, List<GeneratedImage> images)
 {
     var canForceRetry = p.RunningStep is not null
         && p.RunningSince is not null
@@ -172,15 +188,17 @@ static ProjectDetail ToDetail(Project p)
         p.Id, p.Title, p.CreatedAt, p.BookText,
         p.CompletedSteps, p.RunningStep, p.RunningSince,
         p.LastError, p.FailedStep, canForceRetry,
-        p.StyleJson, p.CharactersJson, p.ChaptersJson);
+        p.StyleJson, p.CharactersJson, p.ChaptersJson,
+        images.Select(img=>new GeneratedImageRef(img.Id, img.Step, img.Index, $"/api/images/{img.Id}")).ToList());
 }
 
 record AuthRequest(string Email, string Name);
 record AuthResponse(Guid UserId, string Name, string Email);
 record CreateProjectRequest(string Title, string BookText);
 record ProjectSummary(Guid Id, string Title, DateTime CreatedAt, int CompletedSteps, int? RunningStep);
+record GeneratedImageRef(Guid Id, int Step, int Index, string Url);
 record ProjectDetail(
     Guid Id, string Title, DateTime CreatedAt, string BookText,
     int CompletedSteps, int? RunningStep, DateTime? RunningSince,
     string? LastError, int? FailedStep, bool CanForceRetry,
-    string? StyleJson, string? CharactersJson, string? ChaptersJson);
+    string? StyleJson, string? CharactersJson, string? ChaptersJson, List<GeneratedImageRef> Images);

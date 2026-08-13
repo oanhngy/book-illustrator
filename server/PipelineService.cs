@@ -182,6 +182,7 @@ public class PipelineService
             Step = step,
             Index = index,
             ImagePath = relativePath,
+            MimeType = result.MimeType,
             CreatedAt = DateTime.UtcNow,
         });
     }

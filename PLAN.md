@@ -90,7 +90,7 @@ offers a control that clears `RunningStep`. That is the answer to "nothing stuck
 - [x] 5. Caps enforced here: truncate to 2 characters, 1 chapter.
 - [x] 6. Portraits generated one at a time, each persisted immediately so the UI can show them
   arriving individually.
-- [ ] 7. Images written under `data/images/{projectId}/`, served through our own endpoint.
+- [x] 7. Images written under `data/images/{projectId}/`, served through our own endpoint.
 
 **Done when:** all five steps complete against the fake; a mid-step refresh shows the running step; two concurrent run requests produce one Gemini call.
 
