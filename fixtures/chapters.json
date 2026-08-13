@@ -1,0 +1,15 @@
+{
+  "id": "fake-chapters-interaction",
+  "status": "completed",
+  "steps": [
+    {
+      "type": "model_output",
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"chapters\": [{\"title\": \"The Golden Fish\", \"summary\": \"Tấm finds a small golden fish in the pond and secretly raises it, feeding it rice each day while hiding it from her stepmother.\", \"imagePrompt\": \"Tấm kneeling by a village pond at dusk, gently feeding a small golden fish, warm lantern light reflecting on the water.\"}]}"
+        }
+      ]
+    }
+  ]
+}

@@ -86,9 +86,9 @@ offers a control that clears `RunningStep`. That is the answer to "nothing stuck
   No passwords — the brief allows this.
 - [x] 2. `POST /api/projects`, `GET /api/projects`, `GET /api/projects/{id}`.
 - [x] 3. `POST /api/projects/{id}/steps/{step}/run` — claim, then background task.
-- [ ] 4. `PipelineService` with five step methods.
-- [ ] 5. Caps enforced here: truncate to 2 characters, 1 chapter.
-- [ ] 6. Portraits generated one at a time, each persisted immediately so the UI can show them
+- [x] 4. `PipelineService` with five step methods.
+- [x] 5. Caps enforced here: truncate to 2 characters, 1 chapter.
+- [x] 6. Portraits generated one at a time, each persisted immediately so the UI can show them
   arriving individually.
 - [ ] 7. Images written under `data/images/{projectId}/`, served through our own endpoint.
 

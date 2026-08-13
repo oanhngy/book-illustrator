@@ -1,0 +1,15 @@
+{
+  "id": "fake-style-interaction",
+  "status": "completed",
+  "steps": [
+    {
+      "type": "model_output",
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"style\": \"Warm gouache-painted illustrations with soft edges, a muted earthy palette (ochre, sage green, dusty rose), gentle diffused lighting, and slightly rounded character proportions reminiscent of classic Vietnamese folk-tale picture books.\"}"
+        }
+      ]
+    }
+  ]
+}

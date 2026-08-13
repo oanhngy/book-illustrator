@@ -24,7 +24,11 @@ else
 {
     builder.Services.AddScoped<IGeminiClient>(sp => sp.GetRequiredService<GeminiClient>());
 }
-builder.Services.AddScoped<PipelineService>();
+builder.Services.AddScoped<PipelineService>(sp => new PipelineService(
+    sp.GetRequiredService<AppDbContext>(),
+    sp.GetRequiredService<IGeminiClient>(),
+    sp.GetRequiredService<ILogger<PipelineService>>(),
+    storagePath));
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
