@@ -116,11 +116,12 @@ Test 2 is the most valuable test in the submission.
 Order: identity → project list → create project → project detail → stepper → polling →
 loading/error/empty states → force-retry.
 
-- [ ] 1. Poll `GET /api/projects/{id}` every 2s while `RunningStep != null`.
-- [ ] 2. Loading must name the step in progress, not a generic spinner.
-- [ ] 3. Errors must be per-step and retryable from the UI.
-- [ ] 4. Empty states for no projects and for a project with no results yet.
-- [ ] 5. Layout must not jump as results arrive.
+- [x] 1. Poll `GET /api/projects/{id}` every 2s while `RunningStep != null`.
+- [x] 2. Loading must name the step in progress, not a generic spinner.
+- [x] 3. Errors must be per-step and retryable from the UI.
+- [x] 4. Empty states for no projects and for a project with no results yet.
+- [ ] 5. Layout must not jump as results arrive. — fixed-size image tiles in code, not yet
+  eyeballed in a real browser (no browser tool available this session).
 
 `app-demo.html` in the brief is a visual reference to match or beat, not a layout to copy.
 

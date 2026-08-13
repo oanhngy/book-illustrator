@@ -15,6 +15,13 @@ export type ProjectSummary = {
   runningStep: number | null
 }
 
+export type GeneratedImageRef = {
+  id: string
+  step: number
+  index: number
+  url: string
+}
+
 export type ProjectDetail = {
   id: string
   title: string
@@ -29,6 +36,7 @@ export type ProjectDetail = {
   styleJson: string | null
   charactersJson: string | null
   chaptersJson: string | null
+  images: GeneratedImageRef[]
 }
 
 export class ApiError extends Error {
@@ -53,7 +61,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     throw new ApiError(res.status, text || res.statusText)
   }
 
-  return res.json() as Promise<T>
+  const text=await res.text()
+  return (text? JSON.parse(text) : undefined) as T
 }
 
 export function auth(email: string, name: string): Promise<AuthResponse> {
@@ -84,5 +93,12 @@ export function createProject(
 export function getProject(userEmail: string, id: string): Promise<ProjectDetail> {
   return request<ProjectDetail>(`/projects/${id}`, {
     headers: { 'X-User-Email': userEmail },
+  })
+}
+
+export function runStep(userEmail:string, id:string, step:number) : Promise<void> {
+  return request<void>(`/projects/${id}/steps/${step}/run`, {
+    method: 'POST',
+    headers: { 'X-User-Email': userEmail},
   })
 }
