@@ -3,17 +3,10 @@
 Turns a book's text into character portraits and chapter illustrations using the Gemini API.
 Five steps, run one at a time: **Style → Characters → Portraits → Chapters → Illustrations**.
 
-## Sample output
-
-Real output from the Gemini API (Tấm Cám), not fixtures:
-
-<p>
-  <img src="docs/samples/portrait.jpg" width="360" alt="Generated character portrait of Tấm" />
-  <img src="docs/samples/illustration.jpg" width="360" alt="Generated chapter illustration of the shoe scene" />
-</p>
-
 ## Screenshots
+<img width="599" height="215" alt="Screenshot 2026-08-13 at 15 32 53" src="https://github.com/user-attachments/assets/34ea6c09-6dfd-4545-85a3-1ed039cb6ea1" />
 
+<img width="541" height="665" alt="Screenshot 2026-08-13 at 15 33 17" src="https://github.com/user-attachments/assets/7f969327-1d26-411e-8e8e-de8443521484" />
 
 ## Prerequisites
 
