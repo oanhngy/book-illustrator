@@ -56,7 +56,86 @@ app.MapPost("/api/auth", async (AuthRequest request, AppDbContext db) =>
     return Results.Ok(new AuthResponse(user.Id, user.Name, user.Email));
 });
 
+app.MapPost("/api/projects", async (CreateProjectRequest request, HttpContext http, AppDbContext db) =>
+{
+    var email = http.Request.Headers["X-User-Email"].ToString().Trim().ToLowerInvariant();
+    if (email.Length == 0)
+        return Results.BadRequest("X-User-Email header is required.");
+
+    if (!await db.Users.AnyAsync(u => u.Email == email))
+        return Results.Unauthorized();
+
+    var title = request.Title?.Trim() ?? "";
+    var bookText = request.BookText?.Trim() ?? "";
+    if (title.Length == 0 || bookText.Length == 0)
+        return Results.BadRequest("Title and bookText are required.");
+
+    var project = new Project
+    {
+        Id = Guid.NewGuid(),
+        UserEmail = email,
+        Title = title,
+        BookText = bookText,
+        CreatedAt = DateTime.UtcNow,
+        CompletedSteps = 0
+    };
+    db.Projects.Add(project);
+    await db.SaveChangesAsync();
+
+    return Results.Ok(ToSummary(project));
+});
+
+app.MapGet("/api/projects", async (HttpContext http, AppDbContext db) =>
+{
+    var email = http.Request.Headers["X-User-Email"].ToString().Trim().ToLowerInvariant();
+    if (email.Length == 0)
+        return Results.BadRequest("X-User-Email header is required.");
+
+    var projects = await db.Projects
+        .Where(p => p.UserEmail == email)
+        .OrderByDescending(p => p.CreatedAt)
+        .ToListAsync();
+
+    return Results.Ok(projects.Select(ToSummary));
+});
+
+app.MapGet("/api/projects/{id:guid}", async (Guid id, HttpContext http, AppDbContext db) =>
+{
+    var email = http.Request.Headers["X-User-Email"].ToString().Trim().ToLowerInvariant();
+    if (email.Length == 0)
+        return Results.BadRequest("X-User-Email header is required.");
+
+    var project = await db.Projects.FirstOrDefaultAsync(p => p.Id == id);
+    if (project is null || project.UserEmail != email)
+        return Results.NotFound();
+
+    return Results.Ok(ToDetail(project));
+});
+
 app.Run();
+
+static ProjectSummary ToSummary(Project p) =>
+    new(p.Id, p.Title, p.CreatedAt, p.CompletedSteps, p.RunningStep);
+
+static ProjectDetail ToDetail(Project p)
+{
+    var canForceRetry = p.RunningStep is not null
+        && p.RunningSince is not null
+        && p.RunningSince < DateTime.UtcNow.AddMinutes(-5);
+
+    return new(
+        p.Id, p.Title, p.CreatedAt, p.BookText,
+        p.CompletedSteps, p.RunningStep, p.RunningSince,
+        p.LastError, p.FailedStep, canForceRetry,
+        p.StyleJson, p.CharactersJson, p.ChaptersJson);
+}
 
 record AuthRequest(string Email, string Name);
 record AuthResponse(Guid UserId, string Name, string Email);
+record CreateProjectRequest(string Title, string BookText);
+record ProjectSummary(Guid Id, string Title, DateTime CreatedAt, int CompletedSteps, int? RunningStep);
+record ProjectDetail(
+    Guid Id, string Title, DateTime CreatedAt, string BookText,
+    int CompletedSteps, int? RunningStep, DateTime? RunningSince,
+    string? LastError, int? FailedStep, bool CanForceRetry,
+    string? StyleJson, string? CharactersJson, string? ChaptersJson);
