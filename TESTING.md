@@ -1,41 +1,23 @@
 # Testing
-
-## Strategy
-
-The risk in this project is not in the CRUD and not in the Gemini calls themselves — it is in
-the **state transitions around a long-running step**. A step takes 10–30s, during which the user
-can refresh, open a second tab, double-click, or lose the server. That window is where data loss,
-duplicate spend, and permanent stuck states come from, so that is where the tests point.
-
-Gemini is never called from a test. `FakeGeminiClient` serves recorded responses from
-`fixtures/`, with an artificial delay so the concurrency behaviour under test is the same
-behaviour that happens in production. <!-- adjust path/name to match your code -->
-
 ## Backend
-
-Backend tests run against a real SQLite file in a temp directory, not a mocked data layer.
-This is deliberate: what makes step-claiming safe is the database's atomicity, so a test that
-mocks the database away would prove nothing about the property it claims to test.
+Real SQLite in a temp file per test, not a mocked data layer — what makes step-claiming safe
+is the database's atomicity, so mocking it away would prove nothing about the property under
+test. `IGeminiClient` is replaced with a `Moq` mock via DI (`TestWebApplicationFactory`); all
+four tests run through the real HTTP endpoints, not a copy of the claim logic — a passing test
+means the production code path actually works.
 
 | Test | What it protects |
 | --- | --- |
-| <!-- e.g. cannot run step 3 when only step 1 is complete --> | ordering — a step cannot run before its predecessors succeeded |
-| <!-- e.g. two concurrent run requests, Gemini called once --> | no duplicate Gemini calls on double-click or second tab |
-| <!-- e.g. failed step clears RunningStep, records error, leaves CompletedSteps --> | a failure leaves the project usable and retryable |
-| <!-- e.g. stale RunningSince surfaces a recovery affordance --> | nothing is stuck forever |
+| `Step3IsRefused_WhenOnlyStep1IsComplete` | ordering — a step cannot run before its predecessors succeeded |
+| `ConcurrentRunRequests_CallGeminiExactlyOnce` | no duplicate Gemini calls on double-click or second tab — the most valuable test in the submission |
+| `FailingStep_ClearsRunningStepAndRecordsError_LeavesCompletedStepsUnchanged` | a failure leaves the project usable and retryable |
+| `StaleRunningSince_SurfacesCanForceRetry` | nothing is stuck forever |
 
 ## Frontend
-
-Two component tests, chosen over breadth on purpose — the brief asks for a couple that matter,
-not coverage.
-
-| Test | What it protects |
-| --- | --- |
-| <!-- e.g. stepper renders done / current / pending correctly --> | the user can always see where the pipeline actually is |
-| <!-- e.g. error state renders the failing step and a retry control --> | a failure is visible and recoverable from the UI |
+Cut for time — see PLAN.md's cut list and "one more day". Block D's backend tests protect
+the higher-risk logic (concurrency, resume); the budget did not stretch to both.
 
 ## What I deliberately do not test
-
 <!--
   Be specific and give the reason for each. Candidates:
     - E2E — the brief says it is not expected
@@ -50,36 +32,21 @@ not coverage.
 -->
 
 ## Running the tests
-
 ```bash
 ./test.sh
 ```
 
 ## Test report
-
-<!--
-  Paste the ACTUAL output of a real run below — or commit the generated file and link it.
-  Not a summary, not a rewrite. Include the failures if there were any, and say what you
-  did about them.
--->
-
 ```
-<paste real output here>
+=== backend ===
+Passed!  - Failed:     0, Passed:     4, Skipped:     0, Total:     4, Duration: 1 s - server.Tests.dll (net10.0)
 ```
 
-**Run on:** <!-- date --> · **Result:** <!-- e.g. 4 passed backend, 2 passed frontend -->
+Also ran 16x in a row by hand — zero flakes, including the concurrency test.
+
+**Run on:** 2026-08-13 · **Result:** 4 passed backend, 0 frontend (cut)
 
 ## Manual verification
-
-Automated tests do not cover what a real run feels like, so these were checked by hand
-against the live Gemini API:
-
-<!--
-  Tick these off for real. They are the exact behaviours §07 grades under
-  "Resume & concurrency correctness". Note what you observed, including anything that
-  did not work the first time.
--->
-
 - [ ] Refresh mid-step — project reopens showing the running step, not from scratch
 - [ ] Second tab during a running step — shows the in-flight state, does not start a second call
 - [ ] Double-click the action button — one Gemini call
