@@ -96,21 +96,11 @@ Claude Code ran an image call while building and reported as passing. I re-ran i
 - I verified the tight prompt once, cant guarantee the model will always return 1 single output, this only reduces the problem, not remove it
 - A prompt constraint is a request, not a limit. A real fix would cap spend per step, which I didnt build
 
-## 2.
-
-## 3.
-
+## 2. Honestly I dont have much time for this project, so I didn't argue much with Claude Code, most of the things I already plan before writing code in CLAUDE.md and PLAN.md
 ---
 
 # If I had one more day
-
-<!--
-  One short answer. This is where deliberate omissions go — framed as choices with reasons,
-  not apologies. Things you already know belong here:
-    - TDD (never used it; 24h is the wrong time to learn a new process)
-    - the happy-path integration test across all 5 steps
-    - multi-instance safety
-    - what happens when the chain/file handle expires
-    - anything from §08 you skipped on purpose
-  Say what you would build FIRST and why that one.
--->
+- TDD (never used it; 24h is the wrong time to learn a new process)
+- the happy-path integration test across all 5 steps
+- multi-instance safety
+- what happens when the chain/file handle expires

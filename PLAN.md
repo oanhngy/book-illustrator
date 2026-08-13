@@ -143,10 +143,9 @@ loading/error/empty states → force-retry.
 
 ## Block H — Packaging
 
-- [ ] 1. `start.sh` and `test.sh` verified from a clean clone.
-- [ ] 2. `README.md`, `TESTING.md`, and a final pass on `DECISIONS.md` — at least three genuine
-  AI overrides, plus the "one more day" section.
-- [ ] 3. Commit `CLAUDE.md`, this plan, and any prompts or spec files used.
+- [x] 1. `start.sh` and `test.sh` verified from a clean clone.
+- [ ] 2. `README.md`, `TESTING.md`, and a final pass on `DECISIONS.md` — at least three genuine, AI overrides, plus the "one more day" section.
+- [x] 3. Commit `CLAUDE.md`, this plan, and any prompts or spec files used.
 
 ---
 
@@ -163,14 +162,3 @@ loading/error/empty states → force-retry.
 **Never cut:** resume, duplicate protection, stranded-step recovery, `DECISIONS.md`, Block D's
 tests, or commits spread across the working session.
 
----
-
-## Known gaps for "if I had one more day"
-
-Recorded as choices, not apologies:
-
-- **TDD** — never used it; a deadline is the wrong place to learn a new process. Tests were written after, aimed at the riskiest logic.
-- **Frontend component tests (Stepper, error-state retry)** — cut outright this round. Block D's backend tests protect the higher-risk logic (concurrency, resume);  18h didn't stretch to both.
-- **Integration test across all five steps** — the fake client makes it cheap; ran out of time.
-- **Multi-instance safety** — the conditional UPDATE holds for one process, not several.
-- **Expired chaining handle** — an old project whose Gemini context has expired cannot resume.
