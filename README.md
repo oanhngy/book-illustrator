@@ -1,18 +1,28 @@
 # Book Illustrator
 
-Turns a book's text into character portraits and a chapter illustration using the Gemini API.
+Turns a book's text into character portraits and chapter illustrations using the Gemini API.
 Five steps, run one at a time: **Style → Characters → Portraits → Chapters → Illustrations**.
 
----
+## Sample output
+
+Real output from the Gemini API (Tấm Cám), not fixtures:
+
+<p>
+  <img src="docs/samples/portrait.jpg" width="360" alt="Generated character portrait of Tấm" />
+  <img src="docs/samples/illustration.jpg" width="360" alt="Generated chapter illustration of the shoe scene" />
+</p>
+
+## Screenshots
+
 
 ## Prerequisites
 
-- .NET 9 SDK
+- .NET 10 SDK
 - Node.js 20+
 - A Gemini API key — https://aistudio.google.com/apikey
 
-No Docker required. Storage is a local SQLite file, and generated images are written to
-the local filesystem, so there is nothing to orchestrate. <!-- adjust if you changed storage -->
+No Docker. Storage is a local SQLite file; generated images and book text go to the local
+filesystem, served through the API — nothing to orchestrate.
 
 ## Setup
 
@@ -27,7 +37,7 @@ cp .env.example .env
 ./start.sh
 ```
 
-Backend on http://localhost:5000, frontend on http://localhost:5173.
+Backend on http://localhost:5050, frontend on http://localhost:5173.
 
 ## Test
 
@@ -35,69 +45,47 @@ Backend on http://localhost:5000, frontend on http://localhost:5173.
 ./test.sh
 ```
 
-Runs backend (xUnit) and frontend (Vitest) suites. See `TESTING.md` for strategy and a real run report.
-
----
+Runs the backend xUnit suite (real SQLite in a temp file, Gemini mocked). See `TESTING.md`
+for strategy, what's deliberately not tested, and a real run report.
 
 ## Environment variables
 
 | Variable | Required | Description |
 | --- | --- | --- |
 | `GEMINI_API_KEY` | yes | Gemini API key. Never commit this. |
-| `GEMINI_TEXT_MODEL` | no | Defaults to `<model-id>` |
-| `GEMINI_IMAGE_MODEL` | no | Defaults to `<model-id>` |
-| `USE_FAKE_GEMINI` | no | `true` serves canned fixtures instead of calling Gemini. Used during development. |
-
----
+| `GEMINI_TEXT_MODEL` | no | Defaults to `gemini-3.5-flash-lite` |
+| `GEMINI_IMAGE_MODEL` | no | Defaults to `gemini-3.1-flash-lite-image` |
+| `USE_FAKE_GEMINI` | no | `true` serves recorded fixtures instead of calling Gemini — used for local dev/tests |
+| `STORAGE_PATH` | no | Where the SQLite file and generated images live. Defaults to `./data` |
 
 ## Architecture
 
 ```
-client/                 React + Vite
-  src/
-    api.ts              fetch wrappers
-    components/         Stepper, ProjectCard, CharacterCard, ...
-    pages/              Identity, ProjectList, ProjectDetail
+client/src/
+  api.ts                 fetch wrappers over the backend endpoints
+  components/Stepper.tsx done / current / pending, driven by polling
+  pages/                 Identity, ProjectList, CreateProject, ProjectDetail
 
 server/
-  Program.cs            Minimal API endpoints
-  PipelineService.cs    the five steps + state transitions
-  GeminiClient.cs       REST calls to the Gemini API
-  FakeGeminiClient.cs   fixture-backed stand-in for local dev and tests
-  AppDbContext.cs       EF Core / SQLite
-  Models/Project.cs
+  Program.cs             Minimal API endpoints (transaction script)
+  PipelineService.cs     the five steps + progress/error state transitions
+  AppDbContext.cs        EF Core / SQLite
+  Gemini/                IGeminiClient, real client, fake fixture-backed client
+  Models/                Project, User, GeneratedImage
 
-server.tests/           xUnit
-fixtures/               recorded Gemini responses
+server.Tests/            xUnit + Moq, WebApplicationFactory against a real temp SQLite file
+fixtures/                recorded Gemini responses used by the fake client
 ```
 
-**Request flow.** The client POSTs to run a step and gets `202 Accepted` immediately; the step
-runs in the background because Gemini calls take 10–30s. The client polls project state every
-2s and renders whichever step is currently running.
+The client POSTs to run a step and gets `202 Accepted` immediately; the step runs in a
+background task (Gemini takes 10–30s) and the client polls every 2s. A single conditional
+`UPDATE` claims a step atomically — it's what makes duplicate protection and resume work.
+Details and trade-offs are in `DECISIONS.md`.
 
-**Pipeline state.** A project carries `CompletedSteps` (how far it has got) and `RunningStep`
-(what is executing right now, or null). Keeping these separate is what lets a refresh
-mid-step read the true state. See `DECISIONS.md`.
+**Caps, enforced server-side in `PipelineService`, not the UI:** max 2 characters, max 1 chapter.
 
-**Duplicate protection.** Claiming a step is a single conditional `UPDATE` that only succeeds
-when the project is idle and the previous step is done, so a double-click or a second tab
-cannot fire the same Gemini call twice. See `DECISIONS.md`.
+## Further reading
 
-**Storage.** Project state in SQLite. Book text and generated images on the local filesystem,
-served through the API. No external storage. <!-- adjust if you changed storage -->
-
----
-
-## Pipeline caps
-
-Per the assessment, **max 2 characters** and **max 1 chapter**. Both are enforced server-side
-in `PipelineService`, not in the UI.
-
-## AI artifacts
-
-Context files, prompts, and planning notes used while building are committed under
-`<path>`. See `DECISIONS.md` for where AI proposals were accepted and where they were overridden.
-
-## Not implemented
-
-Deliberate omissions and what would come next are listed at the end of `DECISIONS.md`.
+- `DECISIONS.md` — trade-offs, where AI proposals were accepted or overridden, "one more day"
+- `PLAN.md` — the block-by-block build order this was actually built in
+- `TESTING.md` — test strategy and a real run report
