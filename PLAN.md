@@ -120,8 +120,10 @@ loading/error/empty states → force-retry.
 - [x] 2. Loading must name the step in progress, not a generic spinner.
 - [x] 3. Errors must be per-step and retryable from the UI.
 - [x] 4. Empty states for no projects and for a project with no results yet.
-- [ ] 5. Layout must not jump as results arrive. — fixed-size image tiles in code, not yet
-  eyeballed in a real browser (no browser tool available this session).
+- [x] 5. Layout must not jump as results arrive. — fixed-size image tiles, and a min-height
+  wrapper around the status block (loading/error/next-step button) so switching between them
+  doesn't reflow the content below. Not yet eyeballed in a real browser (no browser tool this
+  session) — verified by reading the rendered structure, not by looking at it.
 
 `app-demo.html` in the brief is a visual reference to match or beat, not a layout to copy.
 
@@ -132,9 +134,7 @@ loading/error/empty states → force-retry.
 ## Block G — Real run
 
 - [ ] 1. Switch to the real client.
-- [ ] 2. Run Style → Characters → Portraits on a short chapter first; only extend to
-  Chapters → Illustrations if time remains. Code for all 5 steps already exists — this
-  is about how deep the real-API verification pass goes, not what gets built.
+- [ ] 2. Run Style → Characters → Portraits on a short chapter first; only extend to Chapters → Illustrations if time remains. Code for all 5 steps already exists — this is about how deep the real-API verification pass goes, not what gets built.
 - [ ] 3. Verify by hand: refresh mid-step, second tab, double-click, kill and restart the server,
   force a failure.
 - [ ] 4. Paste real test output into `TESTING.md`.

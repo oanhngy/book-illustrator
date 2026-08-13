@@ -87,53 +87,61 @@ export function ProjectDetailPage({ userEmail, projectId, onBack }: ProjectDetai
             <Stepper completedSteps={project.completedSteps} runningStep={project.runningStep} />
           </div>
 
-          {/* Việc 2: loading nêu tên step, không phải spinner chung chung */}
-          {project.runningStep !== null && (
-            <p className="mb-6 text-sm text-blue-700">
-              Đang chạy: {STEP_LABELS[project.runningStep - 1]}...
-              {project.canForceRetry && (
+          {/*
+            Việc 5: chiều cao tối thiểu cố định cho cả khối trạng thái — đây là khối đổi
+            hình dạng nhiều nhất khi kết quả đến (loading 1 dòng <-> error card <-> nút <->
+            rỗng khi xong cả 5 bước). Không có min-h thì "Nội dung sách" và lưới ảnh bên
+            dưới sẽ nhảy lên/xuống mỗi lần poll thấy state đổi.
+          */}
+          <div className="mb-6 min-h-32">
+            {/* Việc 2: loading nêu tên step, không phải spinner chung chung */}
+            {project.runningStep !== null && (
+              <p className="text-sm text-blue-700">
+                Đang chạy: {STEP_LABELS[project.runningStep - 1]}...
+                {project.canForceRetry && (
+                  <button
+                    type="button"
+                    onClick={() => handleRunStep(project.runningStep!)}
+                    disabled={starting}
+                    className="ml-2 underline disabled:opacity-50"
+                  >
+                    Bước này có vẻ bị treo — thử chạy lại
+                  </button>
+                )}
+              </p>
+            )}
+
+            {/* Việc 3: error per-step + nút retry */}
+            {project.runningStep === null && project.lastError !== null && project.failedStep !== null && (
+              <div className="rounded border border-red-200 bg-red-50 p-4">
+                <p className="mb-2 text-sm text-red-700">
+                  Bước {STEP_LABELS[project.failedStep - 1]} lỗi: {project.lastError}
+                </p>
                 <button
                   type="button"
-                  onClick={() => handleRunStep(project.runningStep!)}
+                  onClick={() => handleRunStep(project.failedStep!)}
                   disabled={starting}
-                  className="ml-2 underline disabled:opacity-50"
+                  className="rounded bg-red-600 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
                 >
-                  Bước này có vẻ bị treo — thử chạy lại
+                  {starting ? 'Đang thử lại...' : 'Thử lại'}
                 </button>
-              )}
-            </p>
-          )}
+              </div>
+            )}
 
-          {/* Việc 3: error per-step + nút retry */}
-          {project.runningStep === null && project.lastError !== null && project.failedStep !== null && (
-            <div className="mb-6 rounded border border-red-200 bg-red-50 p-4">
-              <p className="mb-2 text-sm text-red-700">
-                Bước {STEP_LABELS[project.failedStep - 1]} lỗi: {project.lastError}
-              </p>
+            {/* Nút chạy bước tiếp theo — cần có để tự kích hoạt được polling/loading ở trên */}
+            {project.runningStep === null && project.lastError === null && project.completedSteps < 5 && (
               <button
                 type="button"
-                onClick={() => handleRunStep(project.failedStep!)}
+                onClick={() => handleRunStep(project.completedSteps + 1)}
                 disabled={starting}
-                className="rounded bg-red-600 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+                className="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
               >
-                {starting ? 'Đang thử lại...' : 'Thử lại'}
+                {starting ? 'Đang bắt đầu...' : `Chạy bước: ${STEP_LABELS[project.completedSteps]}`}
               </button>
-            </div>
-          )}
+            )}
 
-          {/* Nút chạy bước tiếp theo — cần có để tự kích hoạt được polling/loading ở trên */}
-          {project.runningStep === null && project.lastError === null && project.completedSteps < 5 && (
-            <button
-              type="button"
-              onClick={() => handleRunStep(project.completedSteps + 1)}
-              disabled={starting}
-              className="mb-6 rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
-            >
-              {starting ? 'Đang bắt đầu...' : `Chạy bước: ${STEP_LABELS[project.completedSteps]}`}
-            </button>
-          )}
-
-          {actionError && <p className="mb-6 text-sm text-red-600">{actionError}</p>}
+            {actionError && <p className="mt-2 text-sm text-red-600">{actionError}</p>}
+          </div>
 
           <div className="mb-6 rounded border border-slate-200 bg-white p-4">
             <h2 className="mb-2 text-sm font-medium text-slate-600">Nội dung sách</h2>
