@@ -29,10 +29,23 @@
 - This structure works good with 5 steps, if project grow a few times bigger, splitting will be needed
 
 ## Modelling pipeline progress
-**Who propose**:
+**Who propose**: I ask Claude to lay out the options for where grogress gets written and how to store images that arrive one at a time
 **Decision**:
+- One RunStepAsync in PipelineService dispatches to the 5 step methods and
+  writes the end of a step — CompletedSteps on success, LastError on failure,
+  clearing RunningStep either way. The start of a step is written separately by
+  the claim UPDATE in the endpoint
+- Images get their own table
 **Reasons**:
+- Splitting start and end this way is deliberate: the start has to be atomic to block
+  a second tab, the end does not. Everything after the claim goes through 1 function, so the state machine is in one place instead of five
+- Step 3 makes portraits one at a time. A row per image lets me save each one as it lands--> a refresh mid-step shows what's already done
+- A JSON column=read-modify-write per image, the race I avoided elsewhere
 **Trade-offs**:
+- RunStepAsync is a hot spot --> a bug there will break 5 steps
+- 2 places write RunningStep, the endpoint sets it, the service clears it. If they ever disagree, a project can look busy when nothing is running. This is the same seam the stranded-step recovery below has to cover
+- 2 entities instead of 1, reading full project state need a join
+- Step and Index=plain ints so nothing stops a nonsense value
 
 ## Preventing duplicate execution
 **Who propose**:
@@ -41,10 +54,16 @@
 **Trade-offs**:
 
 ## Recovering a stranded step
-**Who propose**:
-**Decision**:
+**Who propose**: Claude offered 2 shapes - a separate force-entry endpoint or folding it into '/run'
+**Decision**: Folded into '/run', the claim UPDATE also matches a RunningStep who RunningSince is older than 5 minutes, same single statement
 **Reasons**:
+- Retrying a stuck step and running a fresh step are the same action to user, so they're 1 request + 1 code path
+- Keep the claim atomic, a separate endpoint clearing RunningStep would reopen the gap the conditional UPDATE exists to close
+- Nothing manual needed to unstick a project
 **Trade-offs**:
+- The 5-minute threshold is a guess. If a Gemini call run longer, a second click claims a step that's running and I pay twice
+- No way to tell a dead process from a slow one
+- User gets no gisnal it happened, the step just becomes runnable again
 
 ## Passing the book to Gemini once
 **Who propose**: Brief offer 2 options: conversation chaining vs file upload with a reference
