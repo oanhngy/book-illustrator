@@ -24,6 +24,7 @@ else
 {
     builder.Services.AddScoped<IGeminiClient>(sp => sp.GetRequiredService<GeminiClient>());
 }
+builder.Services.AddScoped<PipelineService>();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -110,6 +111,46 @@ app.MapGet("/api/projects/{id:guid}", async (Guid id, HttpContext http, AppDbCon
         return Results.NotFound();
 
     return Results.Ok(ToDetail(project));
+});
+
+app.MapPost("/api/projects/{id:guid}/steps/{step:int}/run", async (
+    Guid id, int step, HttpContext http, AppDbContext db, IServiceScopeFactory scopeFactory) =>
+{
+    var email = http.Request.Headers["X-User-Email"].ToString().Trim().ToLowerInvariant();
+    if (email.Length == 0)
+        return Results.BadRequest("X-User-Email header is required.");
+
+    if (step < 1 || step > 5)
+        return Results.BadRequest("Step must be between 1 and 5.");
+
+    var project = await db.Projects.FirstOrDefaultAsync(p => p.Id == id);
+    if (project is null || project.UserEmail != email)
+        return Results.NotFound();
+
+    var staleThreshold = DateTime.UtcNow.AddMinutes(-5);
+
+    var claimed = await db.Projects
+        .Where(p => p.Id == id
+            && p.UserEmail == email
+            && p.CompletedSteps == step - 1
+            && (p.RunningStep == null || p.RunningSince < staleThreshold))
+        .ExecuteUpdateAsync(s => s
+            .SetProperty(p => p.RunningStep, step)
+            .SetProperty(p => p.RunningSince, DateTime.UtcNow)
+            .SetProperty(p => p.LastError, (string?)null)
+            .SetProperty(p => p.FailedStep, (int?)null));
+
+    if (claimed == 0)
+        return Results.Conflict("Step cannot be started right now.");
+
+    _ = Task.Run(async () =>
+    {
+        using var scope = scopeFactory.CreateScope();
+        var pipeline = scope.ServiceProvider.GetRequiredService<PipelineService>();
+        await pipeline.RunStepAsync(id, step);
+    });
+
+    return Results.Accepted();
 });
 
 app.Run();
